@@ -68,6 +68,27 @@ Un punto gordo donde se juntan cables quiere decir que están conectados. Si dos
 - **Los P van arriba, pegados al + (VDD), y los N abajo, pegados a tierra (GND).** Los P suben la salida a 1 y los N la bajan a 0.
 - **No hay cortocircuito** porque el P y el N reciben la misma señal: cuando uno conduce, el otro no. Nunca quedan unidos el + y la tierra.
 
+## El dato que casi nadie te dice: cuánto voltaje necesita la compuerta
+
+Para que un transistor se active, a la pata G no le sirve *cualquier* voltaje. Tiene que quedar **más arriba (o más abajo) que la pata S por una cantidad mínima**, que se llama **voltaje umbral (Vth, "threshold")**. Lo que importa no es el voltaje de G solo, sino **la diferencia entre G y S**.
+
+- **Transistor N:** conduce cuando G está al menos Vth **por encima** de S. Como su S va a tierra (0 V), basta con que G pase de Vth.
+- **Transistor P:** conduce cuando G está al menos Vth **por debajo** de S. Como su S va al +, G tiene que bajar más de Vth por debajo del +. Por ejemplo, con 3,3 V en S, G = 0 V lo prende sin problemas.
+
+Por eso **el N siempre va abajo y el P arriba**. Si pones un N arriba, con su S pegado al +, necesitarías en G un voltaje *mayor que el +* para prenderlo, y no lo tienes.
+
+**¿Cuánto es Vth, más o menos?**
+
+| Tipo de transistor | Vth típico | En la práctica |
+|---|---|---|
+| Dentro de un chip moderno (procesadores, ESP32) | 0,2 – 0,5 V | por eso los chips funcionan con ~1 V |
+| MOSFET suelto "logic level" (ej. AO3400, IRLZ44N) | 0,7 – 2,5 V | se maneja directo con los 3,3 V de un ESP32 |
+| MOSFET de potencia común (ej. IRF540N, IRFZ44N) | 2 – 4 V | necesita ~10 V en G para conducir de verdad; con 3,3 V queda a medias y se calienta |
+
+Ojo: Vth es donde el transistor **recién empieza** a conducir. Para que conduzca completo, como un cable, hay que pasarlo con margen. La hoja de datos lo dice como *"Rds(on) @ Vgs = 4,5 V"*: la resistencia que tiene cuando G–S vale eso.
+
+En Logisim los transistores son ideales, así que no se ve el umbral: un 1 los prende y un 0 los apaga. En un circuito de verdad, este dato decide si tu transistor prende bien o se calienta.
+
 ## Cómo se comprobó
 
 Cada paso se probó con el modo consola de Logisim, que recorre todas las combinaciones de entradas:
